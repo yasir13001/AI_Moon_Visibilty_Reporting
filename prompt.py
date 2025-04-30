@@ -28,6 +28,7 @@ class GenerateReport:
         formatted_date = date_obj.strftime("%Y-%m-%d")
 
         moon = MoonCalc(self.path, formatted_date, self.month, self.year + " AH", self.dst)
+        generate_pdf(self.date,self.month,self.year)
         df = moon.calculate()
 
         df[['Station', 'SunsetTime']] = df['STATION(Sunset)'].str.extract(r'^(.*?)\s*\((.*?)\)$')
