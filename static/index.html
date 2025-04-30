@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Moon Visibility Report Generator</title>
+</head>
+<body>
+  <h2>Generate Moon Visibility Report</h2>
+  <form id="reportForm">
+    <label for="date">Date (DD-MM-YYYY):</label><br>
+    <input type="text" id="date" name="date" value="28-05-2025" required><br><br>
+
+    <label for="islamic_month">Islamic Month:</label><br>
+    <input type="text" id="islamic_month" name="islamic_month" value="ZUL-HAJJAH" required><br><br>
+
+    <label for="islamic_year">Islamic Year:</label><br>
+    <input type="text" id="islamic_year" name="islamic_year" value="1446" required><br><br>
+
+    <button type="submit">Generate Report</button>
+  </form>
+
+  <p id="responseMessage"></p>
+
+  <script>
+    document.getElementById("reportForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const formData = {
+        date: document.getElementById("date").value,
+        islamic_month: document.getElementById("islamic_month").value,
+        islamic_year: document.getElementById("islamic_year").value
+      };
+
+      fetch("http://127.0.0.1:8000/generate-report/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("responseMessage").innerText = data.message;
+      })
+      .catch(error => {
+        document.getElementById("responseMessage").innerText = "Error: " + error;
+      });
+    });
+  </script>
+</body>
+</html>
