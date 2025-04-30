@@ -1,10 +1,3 @@
-Sure! Here's an **enhanced `README.md`** that includes everything you've asked for — usage, dependencies, project structure, scheduling, and even `cURL` testing instructions.
-
----
-
-### ✅ Full `README.md`
-
-```markdown
 # 🌙 Moon Visibility Report Generator API
 
 A FastAPI-based application that calculates moon visibility across regions based on astronomical data, analyzes it using Google Gemini AI, and generates a PDF report. This tool is designed for Islamic calendar observations and supports scheduled or manual report generation.
