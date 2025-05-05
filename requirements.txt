@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+google
+requests
+tqdm
+pandas
+markdown-pdf
+python-dotenv

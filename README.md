@@ -1,160 +1,128 @@
-# 🌙 Moon Visibility Report Generator API
+# AI Moon Visibility Reporting
 
-A FastAPI-based application that calculates moon visibility across regions based on astronomical data, analyzes it using Google Gemini AI, and generates a PDF report. This tool is designed for Islamic calendar observations and supports scheduled or manual report generation.
+This project provides a tool to generate moon visibility reports based on a specific date, Islamic month, and Islamic year. It includes a FastAPI server that can be accessed locally, a form to generate reports, and a batch file (`start_app.bat`) to automatically start the app when your computer boots.
 
----
+## Requirements
 
-## 📦 Features
+Before running the app, make sure to install the required dependencies.
 
-- 🧮 Calculates moon visibility metrics using astronomical data
-- 🤖 Uses Gemini AI (Google Generative AI) to interpret data
-- 📄 Generates a summarized PDF report
-- 🕓 Supports background tasks and scheduling (daily/interval)
-- ⚙️ API endpoint to manually trigger report generation
+1. **Clone the repository**:
 
----
+    ```bash
+    git clone <repository_url>
+    cd AI_Moon_Visibilty_Reporting
+    ```
 
-## 🛠 Requirements
+2. **Create a Python environment**:
 
-Install all dependencies using:
+    If you are using Anaconda, you can create an environment and install the dependencies:
 
-```bash
-pip install -r requirements.txt
-```
+    ```bash
+    conda create --name moon-env python=3.8
+    conda activate moon-env
+    ```
 
-### `requirements.txt`
+3. **Install required Python packages**:
 
-```
-fastapi
-uvicorn
-pydantic
-tqdm
-pandas
-python-dotenv
-markdown-pdf
-apscheduler
-google-generativeai
-```
+    Make sure you have `pip` installed and then run:
 
-> Note: You also need a local module `pdf_gene` and a valid Gemini API key.
+    ```bash
+    pip install -r requirements.txt
+    ```
 
----
+    The `requirements.txt` file should contain:
 
-## 🔐 Environment Variables
+    ```
+    fastapi
+    uvicorn
+    google
+    requests
+    tqdm
+    pandas
+    markdown-pdf
+    python-dotenv
+    ```
 
-Create a `.env` file in your root directory and add your Google Gemini API key:
-
-```env
-GEMINI_API_KEY=your_google_gemini_api_key_here
-```
+4. **Install any other dependencies**:
+   Ensure all additional tools and packages (like `conda`) are installed properly. If using `conda`, make sure the virtual environment is activated.
 
 ---
 
-## 🚀 Running the FastAPI Server
+## Running the Application
 
-```bash
-uvicorn main:app --reload
-```
+1. **Start the FastAPI server**:
 
----
+   To run the FastAPI server locally, use the following command:
 
-## 📍 API Endpoint
+   ```bash
+   uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+   ```
 
-### `POST /generate-report/`
-
-Trigger report generation manually via POST request.
-
-#### Example Request Body
-
-```json
-{
-  "date": "28-05-2025",
-  "islamic_month": "ZUL-HAJJAH",
-  "islamic_year": "1446"
-}
-```
-
-#### Example Response
-
-```json
-{
-  "message": "Report generation started in background."
-}
-```
+   This will start the server on `http://127.0.0.1:8000`, and you can interact with it via the HTML form at `http://127.0.0.1:8000/`.
 
 ---
 
-## 🧪 Testing the API
+## Auto-Start Application on Boot (Windows)
 
-You can test it using `curl`:
+To have this application start automatically when your computer boots up, follow these steps:
 
-```bash
-curl -X POST http://127.0.0.1:8000/generate-report/ \
-     -H "Content-Type: application/json" \
-     -d '{"date": "28-05-2025", "islamic_month": "ZUL-HAJJAH", "islamic_year": "1446"}'
-```
+### Step 1: Create the Batch File (`start_app.bat`)
 
-Or use tools like Postman, Thunder Client, or Insomnia.
+1. **Create a batch file** `start_app.bat` inside the project directory with the following content:
 
----
+   ```bat
+   @echo off
+   cd /d D:\Moon\AI_Moon_Visibilty_Reporting\
+   call conda activate moon-env
+   uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+   ```
 
-## ⏰ Automatic Scheduling (Optional)
+   This batch file activates the `moon-env` environment and starts the FastAPI app with `uvicorn`.
 
-This app includes `APScheduler` for daily automated report generation.
+### Step 2: Create the VBScript (`start_app.vbs`)
 
-In `main.py`:
+1. **Create a VBScript** `start_app.vbs` inside the same directory with the following content:
 
-```python
-from apscheduler.schedulers.background import BackgroundScheduler
+   ```vbs
+   Set WshShell = CreateObject("WScript.Shell")
+   WshShell.Run chr(34) & "D:\Moon\AI_Moon_Visibilty_Reporting\start_app.bat" & Chr(34), 0
+   Set WshShell = Nothing
+   ```
 
-def scheduled_job():
-    report = GenerateReport("28-05-2025", "ZUL-HAJJAH", "1446")
-    report.run_all()
+   This script will silently run the `start_app.bat` file without showing a command prompt window.
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(scheduled_job, 'interval', days=1)
-scheduler.start()
-```
+### Step 3: Add the VBScript to the Startup Folder
 
-You can customize the schedule using [cron expressions](https://apscheduler.readthedocs.io/en/stable/modules/triggers/cron.html) or other intervals.
+1. Press `Win + R` to open the **Run** dialog, type `shell:startup`, and press **Enter**. This will open the **Startup** folder.
+2. Copy the `start_app.vbs` file into the **Startup** folder.
 
----
-
-## 🗂 Project Structure
-
-```
-.
-├── main.py               # FastAPI app entry point
-├── generate_report.py    # Contains the GenerateReport class logic
-├── pdf_gene/             # Your custom moon calculation logic
-├── .env                  # Environment file with API keys
-├── requirements.txt
-└── README.md
-```
+Now, every time your computer restarts, the FastAPI server will start automatically, and you don't have to manually run the batch file.
 
 ---
 
-## 📄 Output
+## HTML Form Styling
 
-Upon successful execution, a report like this will be generated:
-
-```
-Visibility_report(28-05-2025).pdf
-```
-
-This PDF includes:
-- A summary paragraph
-- Structured findings
-- Key visibility factors
-- A final conclusion
+The form is styled to center itself in the middle of the page for a better user experience. The updated HTML page includes input fields for the **Date**, **Islamic Month**, and **Islamic Year**.
 
 ---
 
-## 📝 License
+## Troubleshooting
 
-MIT License © 2025 Your Name
-```
+- **If the FastAPI server is not accessible**, make sure your firewall allows connections on port `8000`.
+- **If you encounter errors related to the dependencies**, check that all required packages are installed by running `pip list` or `conda list`.
+- **For API errors**, make sure that the necessary API keys and configurations (like `.env` files) are properly set up.
 
 ---
 
-Let me know if you'd like a **GitHub Actions CI setup**, **Dockerfile**, or a sample `.env` and test client script included too!
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
+
+### Summary of Updates in `README.md`:
+
+1. **How to Run the Application**: Instructions on how to install dependencies and run the FastAPI server.
+2. **Auto-Start on Boot**: Detailed instructions on how to automatically run the FastAPI app when the computer starts using a `start_app.bat` batch file and a `start_app.vbs` VBScript.
+3. **Troubleshooting**: General tips on resolving issues that may arise during setup.
+
+This should now fully document how to use the app and set it up to run on startup.
