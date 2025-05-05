@@ -20,8 +20,8 @@ class GenerateReport:
         self.date = date
         self.month = islamic_month
         self.year = islamic_year
-        self.path = "D:/code/Data_2035"
-        self.dst = "D:/Output"
+        self.path = "Data"
+        self.dst = "Output"
         self.df = None
         self.responses = []
 
@@ -163,18 +163,30 @@ Task:
 - Write Conclusion that says if moon visibility is high or low.
 """
 
-        client = genai.Client(api_key=self.api_key)
-        response = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
-        content = response.text
+        try:
+            client = genai.Client(api_key=self.api_key)
+            response = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
+            content = response.text
+        except Exception as e:
+            # Optional: Log the full error
+            print(f"Gemini API error: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
 
         pdf = MarkdownPdf(toc_level=1, optimize=True)
         pdf.add_section(Section(content))
         pdf.meta["title"] = "Moon Visibility Report"
         pdf.meta["author"] = "Artificial Intelligence"
+        # Ensure Output directory exists
+        output_dir = os.path.join(os.path.dirname(__file__), "Output")
+        os.makedirs(output_dir, exist_ok=True)  # Creates the directory if it doesn't exist
+
+        # Save PDF to Output directory
         pdf_file = f"Visibility_report({self.date}).pdf"
-        pdf.save(pdf_file)
-        pdf_path = os.path.abspath(pdf_file)
-        webbrowser.open_new(f"file://{pdf_path}")
+        pdf_path = os.path.join(output_dir, pdf_file)
+        pdf.save(pdf_path)
+
+        # Open PDF in default browser
+        webbrowser.open_new(f"file://{os.path.abspath(pdf_path)}")
 
     def run_all(self):
         self.prepare_dataframe()

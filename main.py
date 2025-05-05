@@ -16,9 +16,6 @@ async def root():
         return f.read()
    
 
-
-
-
 class ReportRequest(BaseModel):
     date: str
     islamic_month: str
@@ -26,9 +23,7 @@ class ReportRequest(BaseModel):
 
 @app.post("/generate-report/")
 async def generate_report(data: ReportRequest, background_tasks: BackgroundTasks):
-    background_tasks.add_task(
-        GenerateReport(data.date, data.islamic_month, data.islamic_year).run_all
-    )
+    background_tasks.add_task(GenerateReport(data.date, data.islamic_month, data.islamic_year).run_all)
     return {"message": "Report generation started in background."}
 
 

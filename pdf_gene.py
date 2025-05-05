@@ -283,7 +283,7 @@ class PDF(FPDF, MoonCalc):
         self.cell(w, h, txt = f"Moon Age at the time of Sunset on {Date} ({city}): {age[0]} hrs {age[1]} mins",ln = 1, align = 'C')
         self.ln()
 
-def generate_pdf(date,month, year, path="D:/code/Data_2035", dst='D:/Output'):
+def generate_pdf(date,month, year, path="Data", dst='Output'):
     
     date_obj = datetime.strptime(date, "%d-%m-%Y")    
     # Convert to YYYY-MM-DD format
