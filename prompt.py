@@ -10,6 +10,8 @@ import json
 from markdown_pdf import MarkdownPdf, Section
 from collections import Counter
 import re
+import webbrowser
+
 
 class GenerateReport:
     def __init__(self, date: str, islamic_month: str, islamic_year: str):
@@ -169,7 +171,10 @@ Task:
         pdf.add_section(Section(content))
         pdf.meta["title"] = "Moon Visibility Report"
         pdf.meta["author"] = "Artificial Intelligence"
-        pdf.save(f"Visibility_report({self.date}).pdf")
+        pdf_file = f"Visibility_report({self.date}).pdf"
+        pdf.save(pdf_file)
+        pdf_path = os.path.abspath(pdf_file)
+        webbrowser.open_new(f"file://{pdf_path}")
 
     def run_all(self):
         self.prepare_dataframe()

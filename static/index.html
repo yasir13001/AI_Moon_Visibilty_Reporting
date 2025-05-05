@@ -3,23 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <title>Moon Visibility Report Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1e40af;
+    }
+
+    #responseMessage {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: green;
+    }
+  </style>
 </head>
 <body>
-  <h2>Generate Moon Visibility Report</h2>
-  <form id="reportForm">
-    <label for="date">Date (DD-MM-YYYY):</label><br>
-    <input type="text" id="date" name="date" value="28-05-2025" required><br><br>
+  <div class="container">
+    <h2>Generate Moon Visibility Report</h2>
+    <form id="reportForm">
+      <label for="date">Date (DD-MM-YYYY):</label>
+      <input type="text" id="date" name="date" value="28-05-2025" required>
 
-    <label for="islamic_month">Islamic Month:</label><br>
-    <input type="text" id="islamic_month" name="islamic_month" value="ZUL-HAJJAH" required><br><br>
+      <label for="islamic_month">Islamic Month:</label>
+      <input type="text" id="islamic_month" name="islamic_month" value="ZUL-HAJJAH" required>
 
-    <label for="islamic_year">Islamic Year:</label><br>
-    <input type="text" id="islamic_year" name="islamic_year" value="1446" required><br><br>
+      <label for="islamic_year">Islamic Year:</label>
+      <input type="text" id="islamic_year" name="islamic_year" value="1446" required>
 
-    <button type="submit">Generate Report</button>
-  </form>
-
-  <p id="responseMessage"></p>
+      <button type="submit">Generate Report</button>
+    </form>
+    <p id="responseMessage"></p>
+  </div>
 
   <script>
     document.getElementById("reportForm").addEventListener("submit", function (e) {
@@ -40,10 +113,11 @@
       })
       .then(response => response.json())
       .then(data => {
-        document.getElementById("responseMessage").innerText = data.message;
+        document.getElementById("responseMessage").innerText = data.message || "Report generated.";
       })
       .catch(error => {
         document.getElementById("responseMessage").innerText = "Error: " + error;
+        document.getElementById("responseMessage").style.color = "red";
       });
     });
   </script>
