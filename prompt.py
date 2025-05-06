@@ -30,7 +30,6 @@ class GenerateReport:
         formatted_date = date_obj.strftime("%Y-%m-%d")
 
         moon = MoonCalc(self.path, formatted_date, self.month, self.year + " AH", self.dst)
-        generate_pdf(self.date,self.month,self.year)
         df = moon.calculate()
 
         df[['Station', 'SunsetTime']] = df['STATION(Sunset)'].str.extract(r'^(.*?)\s*\((.*?)\)$')
@@ -186,11 +185,18 @@ Task:
         pdf.save(pdf_path)
 
         # Open PDF in default browser
-        webbrowser.open_new(f"file://{os.path.abspath(pdf_path)}")
+        #webbrowser.open_new(f"file://{os.path.abspath(pdf_path)}")
+        return pdf_path
+    
+    def generate_params(self):
+        return(generate_pdf(self.date,self.month,self.year))
+
+
 
     def run_all(self):
         self.prepare_dataframe()
         self.get_ai_responses()
         self.parse_responses()
-        self.generate_pdf_report()
+        path = self.generate_pdf_report()
+        return(path)
 

@@ -1,125 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Moon Visibility Report Generator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>Moon Report Generator</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      height: 100%;
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background-color: #f4f6f8;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #eef2f7;
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
     }
-
     .container {
       background: white;
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
-      width: 100%;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 400px;
     }
-
     h2 {
-      margin-bottom: 20px;
       text-align: center;
       color: #333;
     }
-
-    label {
+    input, label, button {
+      width: 95%;
       display: block;
-      margin-top: 15px;
-      margin-bottom: 5px;
-      font-weight: 600;
-      color: #444;
     }
-
     input {
-      width: 100%;
       padding: 10px;
+      margin-bottom: 15px;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
+      border-radius: 5px;
     }
-
     button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      background-color: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
+	  width: 200px;
+	  background-color: #007bff;
+	  color: white;
+	  padding: 12px 5px 12px 12px; /* Optional: change left padding */
+	  margin: 10px auto 0 auto;    /* Top auto-center bottom auto */
+	  border: none;
+	  border-radius: 5px;
+	  cursor: pointer;
+	  display: block;              /* Needed for margin auto to work */
+	}
     button:hover {
-      background-color: #1e40af;
+      background-color: #0056b3;
     }
-
     #responseMessage {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 14px;
+      margin-top: 15px;
       color: green;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Generate Moon Visibility Report</h2>
+    <h2>Moon Report Generator</h2>
     <form id="reportForm">
       <label for="date">Date (DD-MM-YYYY):</label>
-      <input type="text" id="date" name="date" value="28-05-2025" required>
+      <input type="text" id="date" value="28-05-2025" required />
 
-      <label for="islamic_month">Islamic Month:</label>
-      <input type="text" id="islamic_month" name="islamic_month" value="ZUL-HAJJAH" required>
+      <label for="month">Islamic Month:</label>
+      <input type="text" id="month" value="ZUL-HAJJAH" required />
 
-      <label for="islamic_year">Islamic Year:</label>
-      <input type="text" id="islamic_year" name="islamic_year" value="1446" required>
+      <label for="year">Islamic Year:</label>
+      <input type="text" id="year" value="1446" required />
 
-      <button type="submit">Generate Report</button>
+      <button type="button" onclick="generateReport('moon-parameters')">Generate Moon Parameters</button>
+      <button type="button" onclick="generateReport('visibility-report')">Generate Visibility Report</button>
     </form>
     <p id="responseMessage"></p>
   </div>
 
   <script>
-    document.getElementById("reportForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-
+    function generateReport(type) {
       const formData = {
         date: document.getElementById("date").value,
-        islamic_month: document.getElementById("islamic_month").value,
-        islamic_year: document.getElementById("islamic_year").value
+        islamic_month: document.getElementById("month").value,
+        islamic_year: document.getElementById("year").value
       };
 
-      fetch("http://127.0.0.1:8000/generate-report/", {
+      let endpoint = "";
+      if (type === "moon-parameters") {
+        endpoint = "/generate-moon-parameters/";
+      } else {
+        endpoint = "/generate-visibility-report/";
+      }
+
+      fetch(`http://192.168.10.8:8000${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify(formData)
       })
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("responseMessage").innerText = data.message || "Report generated.";
+      .then(response => {
+        if (!response.ok) throw new Error("Failed to generate report.");
+        return response.blob();
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${type.replace('-', '_')}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        document.getElementById("responseMessage").innerText = "Download started.";
       })
       .catch(error => {
-        document.getElementById("responseMessage").innerText = "Error: " + error;
+        document.getElementById("responseMessage").innerText = "Error: " + error.message;
         document.getElementById("responseMessage").style.color = "red";
       });
-    });
+    }
   </script>
 </body>
 </html>

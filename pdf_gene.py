@@ -215,12 +215,23 @@ class MoonCalc:
         h = 5
         pdf.ln()
         pdf.set_font(Format, '', 11)
+        output_dir = os.path.join(os.path.dirname(__file__), "Output")
+        os.makedirs(output_dir, exist_ok=True)  # Creates the directory if it doesn't exist
+
         if self.dst:
             pdf.output(self.dst+"\\"+Date+".pdf",'F')
-            webbrowser.open_new(self.dst+"\\"+Date+'.pdf')
+            pdf_file = f"{Date}.pdf"
+            pdf_path = os.path.join(output_dir, pdf_file)
+            return pdf_path
+            
+#             webbrowser.open_new(self.dst+"\\"+Date+'.pdf')
         else:
             pdf.output(Date+'.pdf','F') # save pdf
-            webbrowser.open_new(Date+'.pdf') # open pdf in browser  
+            pdf_file = f"{Date}.pdf"
+            pdf_path = os.path.join(output_dir, pdf_file)
+            print(pdf_path)
+            return pdf_path
+#             webbrowser.open_new(Date+'.pdf') # open pdf in browser  
 
 
 # In[4]:
@@ -289,7 +300,9 @@ def generate_pdf(date,month, year, path="Data", dst='Output'):
     # Convert to YYYY-MM-DD format
     converted_date = date_obj.strftime("%Y-%m-%d")
     Moon = MoonCalc(path,converted_date,month,year +" AH",dst)
-    Moon.pdf()
+    print(Moon.pdf())
+    return(Moon.pdf())
+#     Moon.pdf()
 
 # TO GENERATE PDF PASS DATE MONTH AND ISLAMIC YEAR
 # generate_pdf("28-04-2025","ZIL-QADDAH","1446")
