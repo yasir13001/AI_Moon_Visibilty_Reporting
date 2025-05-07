@@ -12,9 +12,8 @@ from collections import Counter
 import re
 import webbrowser
 
-
 class GenerateReport:
-    def __init__(self, date: str, islamic_month: str, islamic_year: str):
+    def __init__(self, df: pd.DataFrame, date: str, islamic_month: str, islamic_year: str):
         load_dotenv(dotenv_path='../.env')
         self.api_key = os.getenv("GEMINI_API_KEY")
         self.date = date
@@ -22,14 +21,15 @@ class GenerateReport:
         self.year = islamic_year
         self.path = "Data"
         self.dst = "Output"
-        self.df = None
+        self.df = df
         self.responses = []
 
     def prepare_dataframe(self):
         date_obj = datetime.strptime(self.date, "%d-%m-%Y")
         formatted_date = date_obj.strftime("%Y-%m-%d")
+        all_df = self.df
 
-        moon = MoonCalc(self.path, formatted_date, self.month, self.year + " AH", self.dst)
+        moon = MoonCalc(df=all_df, date=formatted_date, Month=self.month, year=self.year ,dst=self.dst)
         df = moon.calculate()
 
         df[['Station', 'SunsetTime']] = df['STATION(Sunset)'].str.extract(r'^(.*?)\s*\((.*?)\)$')
@@ -159,7 +159,7 @@ Task:
 - Summarize all text in one paragraph.
 - Write structured report of findings
 - Key Factors affecting moon visibilty
-- Write Conclusion that says if moon visibility is high or low.
+- Write Conclusion that says if moon visibility for islamic Month of {self.month} {self.year} is high or low in Pakistan.
 """
 
         try:
@@ -188,10 +188,6 @@ Task:
         #webbrowser.open_new(f"file://{os.path.abspath(pdf_path)}")
         return pdf_path
     
-    def generate_params(self):
-        return(generate_pdf(self.date,self.month,self.year))
-
-
 
     def run_all(self):
         self.prepare_dataframe()

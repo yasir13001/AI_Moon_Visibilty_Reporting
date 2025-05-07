@@ -26,91 +26,91 @@ from datetime import datetime
 import requests
 
 
-# In[3]:
+def set_axis(df):
+    columns = ["year", "h", "cd", "conj", "f", "wk", "mon", "day", "set", "Saz", "age",
+               "Alt", "Maz", "dz", "Mag", "El", "mset", "lag", "best", "cat"]
+    df.columns = columns
+    return df
 
+def illum(a):
+    return round(50 * (1 - math.cos(math.radians(a))), 1)
+
+def load_file(root, filename):
+    try:
+        df = pd.read_fwf(os.path.join(root, filename))
+    except Exception as e:
+        print(f"Error loading file {filename}: {e}")
+        return pd.DataFrame()
+
+    df = set_axis(df)
+    dfa = df.drop(['f', 'Mag', 'wk'], axis=1)
+    dfs = dfa.loc[:, :'conj']
+    dfd = dfa.loc[:, 'mon':'cat']
+
+    dfd = dfd.bfill()
+    dfs = dfs.ffill()
+
+    dfg = dfs.combine_first(dfd)
+    dfg.drop_duplicates(inplace=True)
+    dfg.dropna(inplace=True)
+
+    for x in ['conj', 'set', 'mset', 'best']:
+        dfg[x] = dfg[x].replace(' ', ':', regex=True)
+
+    for x in ['cd', 'day', 'year', 'lag', 'Alt', 'Saz', 'dz', 'Maz']:
+        dfg[x] = dfg[x].astype(int).astype(str)
+
+    dfg['mon'] = dfg['mon'].str[:3]
+    dfg['h'] = dfg['h'].str[:3]
+    dfg['date'] = pd.to_datetime(dfg['day'] + dfg['mon'] + dfg['year'], format='%d%b%Y')
+    dfg.set_index('date', inplace=True)
+
+    dfg['conj_time'] = pd.to_datetime(dfg['cd'] + dfg['h'] + dfg['year'] + ' ' + dfg['conj'])
+
+    dfg['Station'] = filename.split('.', 1)[0]
+    dfg['El'] = dfg['El'].astype(int)
+    dfg['ilum'] = dfg['El'].apply(illum)
+
+    return dfg
+
+def load_all_files(path):
+    df = pd.DataFrame()
+    if os.path.exists(path):
+        for root, dirs, files in os.walk(path):
+            for filename in files:
+                d = load_file(root, filename)
+                if not d.empty:
+                    df = pd.concat([df, d], ignore_index=False)
+    else:
+        print("Directory does not exist")
+    return df
 
 class MoonCalc:
-    def __init__(self, file_path, date, Month, year, dst):
-        self.path = file_path.replace('"', '')
+    def __init__(self, df, date, Month, year, dst):
+        # Accept pre-loaded dataframe and other params
+        self.df = pd.DataFrame(df)  # Loaded data
         self.date = date.replace('"', '')
         self.month = Month.replace('"', '')
         self.year = year.replace('"', '')
         self.dst = dst.replace('"', '') if dst else None
 
-    def data(self, *args):
-        def set_axis(df):
-            columns = ["year", "h", "cd", "conj", "f", "wk", "mon", "day", "set", "Saz", "age",
-                       "Alt", "Maz", "dz", "Mag", "El", "mset", "lag", "best", "cat"]
-            df.columns = columns
-            return df
-
-        def illum(a):
-            return round(50 * (1 - math.cos(math.radians(a))), 1)
-
-        try:
-            df = pd.read_fwf(os.path.join(args[0], args[1]))
-        except Exception as e:
-            print(f"Error loading file {args[1]}: {e}")
-            return pd.DataFrame()
-
-        df = set_axis(df)
-        dfa = df.drop(['f', 'Mag', 'wk'], axis=1)
-        dfs = dfa.loc[:, :'conj']
-        dfd = dfa.loc[:, 'mon':'cat']
-
-        dfd = dfd.bfill()
-        dfs = dfs.ffill()
-
-        dfg = dfs.combine_first(dfd)
-        dfg.drop_duplicates(inplace=True)
-        dfg.dropna(inplace=True)
-
-        for x in ['conj', 'set', 'mset', 'best']:
-            dfg[x] = dfg[x].replace(' ', ':', regex=True)
-
-        for x in ['cd', 'day', 'year', 'lag', 'Alt', 'Saz', 'dz', 'Maz']:
-            dfg[x] = dfg[x].astype(int).astype(str)
-
-        dfg['mon'] = dfg['mon'].str[:3]
-        dfg['h'] = dfg['h'].str[:3]
-        dfg['date'] = pd.to_datetime(dfg['day'] + dfg['mon'] + dfg['year'], format='%d%b%Y')
-        dfg.set_index('date', inplace=True)
-
-        dfg['conj_time'] = pd.to_datetime(dfg['cd'] + dfg['h'] + dfg['year'] + ' ' + dfg['conj'])
-
-        dfg['Station'] = args[1].split('.', 1)[0] if args else self.loc
-
-        dfg['El'] = dfg['El'].astype(int)
-        dfg['ilum'] = dfg['El'].apply(illum)
-
-        return dfg
-
-    def sort(self, *args):
-        df = self.data(args[0], args[1])
+    def sort(self):
+        # Use the pre-loaded dataframe
+        df = self.df
         if df.empty:
             return pd.DataFrame()
 
         df = df[['Station', 'set', 'lag', 'Alt', 'Saz', 'dz', 'El', 'ilum', 'cat', 'age', 'conj_time']]
+        df = df.copy()
         df['Station'] = df['Station'].astype("category").cat.set_categories(sorted(df['Station'].unique()))
         return df
 
-    def all_files(self):
-        df = pd.DataFrame()
-        if os.path.exists(self.path):
-            for root, dirs, files in os.walk(self.path):
-                for filename in files:
-                    d = self.sort(root, filename)
-                    if not d.empty:
-                        df = pd.concat([df, d], ignore_index=False)
-            return df
-        else:
-            print("Directory does not exist")
-            return df
-
     def calculate(self):
-        dfs = self.all_files()
+        # Use the pre-loaded dataframe
+        dfs = self.sort()
         dfd = pd.DataFrame()
         if not dfs.empty:
+            dfs = dfs.copy()  # Ensure it's a new DataFrame, not a view
             dfs['date'] = dfs.index
             dfs.set_index('date', inplace=True)
             dfs.index = pd.to_datetime(dfs.index)
@@ -123,7 +123,6 @@ class MoonCalc:
                 dfd = daily_df.loc[:, :'cat']
                 dfd['Station'] = dfd['Station'].astype(str) + " (" + dfd['set'].astype(str) + ")"
                 dfd.drop(columns="set", inplace=True)
-                
 
                 dfd.rename(columns={
                     'Station': 'STATION(Sunset)',
@@ -139,7 +138,8 @@ class MoonCalc:
         return dfd
 
     def Select_city(self):
-        dfs = self.all_files()
+        # Use the pre-loaded dataframe
+        dfs = self.df
         if dfs.empty:
             return {}
 
@@ -159,24 +159,26 @@ class MoonCalc:
             "tm": df_today.conj_time.dt.strftime("%H:%M:%S").values[0],
             "city": df_today.Station.values[0]
         }
-    
+
     def pdf(self):
         Format = "Arial"        
         data = {'Station':'  STATION    (Sunset)','lag':'LAG TIME  (Min)','Alt':'MOON ALTITUDE   (Deg)', 
-                                      'Saz':'SUN_AZIMUTH (Deg)',
-                                      'dz':'DAZ   (Deg)  ',
-                                      'El':'ELONGATION  (Deg)','ilum':'ILLUMINATION  (%)',
-                                      'cat':'CRITERION   '}
+                                        'Saz':'SUN_AZIMUTH (Deg)',
+                                        'dz':'DAZ   (Deg)  ',
+                                        'El':'ELONGATION  (Deg)','ilum':'ILLUMINATION  (%)',
+                                        'cat':'CRITERION   '}
         df = pd.DataFrame()
         df = self.calculate()
-        if df.empty == True: return print("Date not Found") 
+        print(df)
+        if df.empty: 
+            return print("Date not Found") 
         Date = datetime.strptime(self.date,"%Y-%m-%d")
-        Date =Date.strftime("%d-%m-%Y")
-        pdf = PDF(self.path, self.date, self.month, self.year , self.dst ,'L', 'mm', 'A4')
+        Date = Date.strftime("%d-%m-%Y")
+        pdf = PDF(self.df, self.date, self.month, self.year ,self.dst,'L', 'mm', 'A4')
         pdf.add_page()
         pdf.set_font(Format,'B',11)
         li = []
-        for x in data.values():li.append(x)
+        for x in data.values(): li.append(x)
         width = [40,30,38,33,22,31,33,26,40,40]
         start = 25
         pdf.x = start
@@ -187,12 +189,10 @@ class MoonCalc:
         pdf.y = top
         for head in li:    
             pdf.multi_cell(width[i],7,head,border = 1,align = "C")
-            # Reset y coordinate
             pdf.y = top
-            # Move to computed offset    
             pdf.x = offset
             i += 1
-            offset = offset+ width[i]
+            offset = offset + width[i]
         h = pdf.font_size * 2.5
         pdf.y = 54
         pdf.set_font(Format,'',11)
@@ -200,50 +200,45 @@ class MoonCalc:
             i = 0
             pdf.x = start
             for data in row.values:
-                pdf.cell(width[i], h, str(data),border = 1,align='C') # write each data for the row in its cell
+                pdf.cell(width[i], h, str(data), border = 1, align='C') 
                 i +=1  
             pdf.ln()      
         ls = ["(A)  Easily visible",
-                         "(B) Visible under perfect conditions",
-                         "(C)  May need optical aid to find the crescent Moon",
-                        "(D)  Will need optical aid to find the crescent Moon",
-                        "(E)  Not visible with a telescope",
-                        "(F)  Not visible, below the Danjon limit"]
-        
+                     "(B) Visible under perfect conditions",
+                     "(C)  May need optical aid to find the crescent Moon",
+                    "(D)  Will need optical aid to find the crescent Moon",
+                    "(E)  Not visible with a telescope",
+                    "(F)  Not visible, below the Danjon limit"]
+
         pdf.ln()
         pdf.set_font(Format, 'BU', 12)
         h = 5
         pdf.ln()
         pdf.set_font(Format, '', 11)
         output_dir = os.path.join(os.path.dirname(__file__), "Output")
-        os.makedirs(output_dir, exist_ok=True)  # Creates the directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True) 
 
         if self.dst:
-            pdf.output(self.dst+"\\"+Date+".pdf",'F')
+            pdf.output(self.dst + "\\" + Date + ".pdf", 'F')
             pdf_file = f"{Date}.pdf"
             pdf_path = os.path.join(output_dir, pdf_file)
             return pdf_path
-            
-#             webbrowser.open_new(self.dst+"\\"+Date+'.pdf')
         else:
-            pdf.output(Date+'.pdf','F') # save pdf
+            pdf.output(Date+'.pdf','F') 
             pdf_file = f"{Date}.pdf"
             pdf_path = os.path.join(output_dir, pdf_file)
             print(pdf_path)
             return pdf_path
-#             webbrowser.open_new(Date+'.pdf') # open pdf in browser  
 
-
-# In[4]:
 
 
 class PDF(FPDF, MoonCalc):
-    def __init__(self, file_path, date, Month, year, dst, *args, **kwargs):
+    def __init__(self,df, date, Month, year, dst, *args, **kwargs):
         # Initialize FPDF
         FPDF.__init__(self, *args, **kwargs)  
         
         # Initialize MoonCalc with required parameters
-        MoonCalc.__init__(self, file_path, date, Month, year, dst)
+        MoonCalc.__init__(self, df, date, Month, year, dst)
 
     
     def footer(self):
@@ -294,17 +289,14 @@ class PDF(FPDF, MoonCalc):
         self.cell(w, h, txt = f"Moon Age at the time of Sunset on {Date} ({city}): {age[0]} hrs {age[1]} mins",ln = 1, align = 'C')
         self.ln()
 
-def generate_pdf(date,month, year, path="Data", dst='Output'):
+def generate_pdf(df,date,month, year, path="Data", dst='Output'):
     
     date_obj = datetime.strptime(date, "%d-%m-%Y")    
     # Convert to YYYY-MM-DD format
     converted_date = date_obj.strftime("%Y-%m-%d")
-    Moon = MoonCalc(path,converted_date,month,year +" AH",dst)
-    print(Moon.pdf())
+#     Moon = MoonCalc(path,converted_date,month,year +" AH",dst)
+    Moon = MoonCalc(df=df, date=converted_date, Month=month, year=year , dst=dst)
     return(Moon.pdf())
-#     Moon.pdf()
 
-# TO GENERATE PDF PASS DATE MONTH AND ISLAMIC YEAR
-# generate_pdf("28-04-2025","ZIL-QADDAH","1446")
 
 
