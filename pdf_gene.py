@@ -169,7 +169,6 @@ class MoonCalc:
                                         'cat':'CRITERION   '}
         df = pd.DataFrame()
         df = self.calculate()
-        print(df)
         if df.empty: 
             return print("Date not Found") 
         Date = datetime.strptime(self.date,"%Y-%m-%d")

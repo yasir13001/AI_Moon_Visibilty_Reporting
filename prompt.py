@@ -11,23 +11,27 @@ from markdown_pdf import MarkdownPdf, Section
 from collections import Counter
 import re
 import webbrowser
+from ollama import Client
 
 class GenerateReport:
     def __init__(self, df: pd.DataFrame, date: str, islamic_month: str, islamic_year: str):
         load_dotenv(dotenv_path='../.env')
         self.api_key = os.getenv("GEMINI_API_KEY")
+        self.Huggingface_api_key = os.getenv("Huggingface_api_key")
+        self.Groq_api_key = os.getenv("Groq_api_key")
         self.date = date
         self.month = islamic_month
         self.year = islamic_year
         self.path = "Data"
         self.dst = "Output"
-        self.df = df
+        self.df = pd.DataFrame()
         self.responses = []
+        self.all_df = df
 
     def prepare_dataframe(self):
         date_obj = datetime.strptime(self.date, "%d-%m-%Y")
         formatted_date = date_obj.strftime("%Y-%m-%d")
-        all_df = self.df
+        all_df = self.all_df
 
         moon = MoonCalc(df=all_df, date=formatted_date, Month=self.month, year=self.year ,dst=self.dst)
         df = moon.calculate()
@@ -41,7 +45,6 @@ class GenerateReport:
 
         df.columns = ['Station', 'SunsetTime', 'LagTime', 'MoonAltitude', 'SunAzimuth',
                       'DAZ', 'Elongation', 'Illumination', 'Criterion']
-
         self.df = df
 
     def make_prompt(self, row):
@@ -91,6 +94,35 @@ class GenerateReport:
         client = genai.Client(api_key=self.api_key)
         response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
         return response.text
+    
+    def query_groq(self, prompt):
+        from groq import Groq
+
+        client = Groq(api_key=self.Groq_api_key)
+
+        response = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}],
+                options={
+                     "num_predict": 150  # or whatever is just enough for your use case
+    }
+        )
+        return response.choices[0].message.content
+
+
+    def query_ollama(self,prompt: str, model: str = "llama3.2"):
+        client = Client(host='http://localhost:11434')
+        response = client.chat(
+            model=model,
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
+        return response['message']['content']
+
+
 
     def get_ai_responses(self):
         tqdm.pandas()
@@ -163,12 +195,12 @@ Task:
 """
 
         try:
-            client = genai.Client(api_key=self.api_key)
-            response = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt])
-            content = response.text
+#             content = query_gemini(prompt)
+            content =  self.query_gemini(prompt)
+            
         except Exception as e:
             # Optional: Log the full error
-            print(f"Gemini API error: {e}")
+            print(f"Llama Error: {e}")
             raise HTTPException(status_code=500, detail=str(e))
 
         pdf = MarkdownPdf(toc_level=1, optimize=True)
