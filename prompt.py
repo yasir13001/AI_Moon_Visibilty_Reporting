@@ -12,6 +12,12 @@ from collections import Counter
 import re
 import webbrowser
 from ollama import Client
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from groq import Groq
+import time
+
+
+
 
 class GenerateReport:
     def __init__(self, df: pd.DataFrame, date: str, islamic_month: str, islamic_year: str):
@@ -96,20 +102,39 @@ class GenerateReport:
         return response.text
     
     def query_groq(self, prompt):
-        from groq import Groq
 
         client = Groq(api_key=self.Groq_api_key)
 
         response = client.chat.completions.create(
             model="llama3-8b-8192",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}],
-                options={
-                     "num_predict": 150  # or whatever is just enough for your use case
-    }
+                {"role": "user", "content": prompt}],               
         )
         return response.choices[0].message.content
+    
+
+
+    def generate_all(self, prompts):
+        results = [None] * len(prompts)
+        start_time = time.time()
+
+        with ThreadPoolExecutor(max_workers=16) as executor:
+            future_to_index = {
+                executor.submit(self.query_gemini, prompt): idx
+                for idx, prompt in enumerate(prompts)
+            }
+
+            for future in as_completed(future_to_index):
+                idx = future_to_index[future]
+                try:
+                    results[idx] = future.result()
+                except Exception as e:
+                    print(f"[ERROR] Prompt {idx} failed: {e}")
+                    results[idx] = None  # or some fallback
+
+        print(f"[INFO] Finished {len(prompts)} prompts in {time.time() - start_time:.2f}s")
+        return results
+
 
 
     def query_ollama(self,prompt: str, model: str = "llama3.2"):
@@ -126,9 +151,17 @@ class GenerateReport:
 
     def get_ai_responses(self):
         tqdm.pandas()
-        self.df['llama_response'] = self.df.progress_apply(
-            lambda row: self.query_gemini(self.make_prompt(row)), axis=1
-        )
+
+        # Step 1: Generate prompts for each row
+        self.df['prompt'] = self.df.progress_apply(lambda row: self.make_prompt(row), axis=1)
+
+        # Step 2: Run all prompts in parallel
+        all_prompts = self.df['prompt'].tolist()
+        responses = self.generate_all(all_prompts)
+
+        # Step 3: Assign responses to new column
+        self.df['llama_response'] = responses
+
 
     def sanitize_and_parse_json(self, text):
         try:
