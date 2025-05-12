@@ -33,6 +33,7 @@ class GenerateReport:
         self.df = pd.DataFrame()
         self.responses = []
         self.all_df = df
+        self.moon_age = []
 
     def prepare_dataframe(self):
         date_obj = datetime.strptime(self.date, "%d-%m-%Y")
@@ -41,7 +42,11 @@ class GenerateReport:
 
         moon = MoonCalc(df=all_df, date=formatted_date, Month=self.month, year=self.year ,dst=self.dst)
         df = moon.calculate()
-
+        #Moon age included as a deciding factor in the prompt
+        moon_age = moon.Select_city()
+        moon_age = moon_age["age"]
+        self.moon_age = moon_age
+        
         df[['Station', 'SunsetTime']] = df['STATION(Sunset)'].str.extract(r'^(.*?)\s*\((.*?)\)$')
         df.drop(columns=['STATION(Sunset)'], inplace=True)
 
@@ -91,6 +96,7 @@ class GenerateReport:
             "Answer based on the following data:\n"
             f"On {self.date}, at station {row['Station']}, at the time of Sunset {row['SunsetTime']}, "
             f"moon altitude {moon_altitude}°, illumination {illumination}%, "
+            f"Moon age is {self.moon_age[0]} hours and {self.moon_age[1]} minutes"
             f"and visibility criterion '{row['Criterion']}': {visibility_description}. "
             f"{illumination_description} {altitude_description}. "
             f"Based on this data, explain whether the moon is likely to be visible and why."
@@ -106,9 +112,8 @@ class GenerateReport:
         client = Groq(api_key=self.Groq_api_key)
 
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
-            messages=[
-                {"role": "user", "content": prompt}],               
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],               
         )
         return response.choices[0].message.content
     
@@ -123,7 +128,6 @@ class GenerateReport:
                 executor.submit(self.query_gemini, prompt): idx
                 for idx, prompt in enumerate(prompts)
             }
-
             for future in as_completed(future_to_index):
                 idx = future_to_index[future]
                 try:
@@ -222,7 +226,8 @@ You are provided with specific data about the moon's visibility, including altit
 Task:
 - Write no introduction
 - Summarize all text in one paragraph.
-- Write structured report of findings
+- Write structured key findings
+- Write Difference in Moon visibility parameters of given cities
 - Key Factors affecting moon visibilty
 - Write Conclusion that says if moon visibility for islamic Month of {self.month} {self.year} is high or low in Pakistan.
 """
@@ -233,7 +238,7 @@ Task:
             
         except Exception as e:
             # Optional: Log the full error
-            print(f"Llama Error: {e}")
+            print(f"Gemini Error: {e}")
             raise HTTPException(status_code=500, detail=str(e))
 
         pdf = MarkdownPdf(toc_level=1, optimize=True)
