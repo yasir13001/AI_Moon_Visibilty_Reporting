@@ -1,7 +1,3 @@
-Here’s a polished `README.md`-style project description tailored for GitHub, complete with **keywords for discoverability**:
-
----
-
 # 🌙 Moon Visibility Report Generator
 
 An AI-powered Python tool for generating **lunar visibility reports** using **LLMs (Large Language Models)** such as **Gemini**, **Groq**, and **LLaMA3** (via **Ollama**). Designed for astronomers, developers, and researchers interested in **moon sighting**, **Hilal reports**, and **Islamic calendar computations**.
