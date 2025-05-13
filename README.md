@@ -38,5 +38,18 @@ generator = MoonReportGenerator()
 prompts = generator.make_prompt(row)
 responses = generator.generate_all(prompts)
 ```
+Here’s a sample section you can add to your `README.md` file:
 
+---
 
+## 🔧 Configuration
+
+All configuration details for the Moon Report Generator can be found in the `config` directory.
+
+📁 **Path:** `config/config.md`
+This file contains detailed instructions and parameters to customize how the application behaves, including:
+
+* API keys
+* Model settings (Gemini, Groq, LLaMA3, etc.)
+* Thread settings
+* Report formatting options
