@@ -1,128 +1,48 @@
-# AI Moon Visibility Reporting
-
-This project provides a tool to generate moon visibility reports based on a specific date, Islamic month, and Islamic year. It includes a FastAPI server that can be accessed locally, a form to generate reports, and a batch file (`start_app.bat`) to automatically start the app when your computer boots.
-
-## Requirements
-
-Before running the app, make sure to install the required dependencies.
-
-1. **Clone the repository**:
-
-    ```bash
-    git clone <repository_url>
-    cd AI_Moon_Visibilty_Reporting
-    ```
-
-2. **Create a Python environment**:
-
-    If you are using Anaconda, you can create an environment and install the dependencies:
-
-    ```bash
-    conda create --name moon-env python=3.8
-    conda activate moon-env
-    ```
-
-3. **Install required Python packages**:
-
-    Make sure you have `pip` installed and then run:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-    The `requirements.txt` file should contain:
-
-    ```
-    fastapi
-    uvicorn
-    google
-    requests
-    tqdm
-    pandas
-    markdown-pdf
-    python-dotenv
-    ```
-
-4. **Install any other dependencies**:
-   Ensure all additional tools and packages (like `conda`) are installed properly. If using `conda`, make sure the virtual environment is activated.
+Here’s a polished `README.md`-style project description tailored for GitHub, complete with **keywords for discoverability**:
 
 ---
 
-## Running the Application
+# 🌙 Moon Visibility Report Generator
 
-1. **Start the FastAPI server**:
+An AI-powered Python tool for generating **lunar visibility reports** using **LLMs (Large Language Models)** such as **Gemini**, **Groq**, and **LLaMA3** (via **Ollama**). Designed for astronomers, developers, and researchers interested in **moon sighting**, **Hilal reports**, and **Islamic calendar computations**.
 
-   To run the FastAPI server locally, use the following command:
+## 🚀 Features
 
-   ```bash
-   uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-   ```
+* 🧠 **AI-Powered Reporting** – Uses advanced language models to generate descriptive moon visibility reports.
+* ⚡ **Parallel Processing** – Boosted performance via `ThreadPoolExecutor` for concurrent prompt generation.
+* 🗃️ **Dataset Integration** – Works with structured data using `pandas`, with real-time progress updates using `tqdm`.
+* 💻 **Local + Cloud Models** – Supports local models via [Ollama](https://ollama.com) and cloud APIs like **Groq**, **Gemini**, etc.
+* 🛰️ **Astronomical Accuracy** – Compatible with moon phase datasets and visibility criteria for precise reports.
 
-   This will start the server on `http://127.0.0.1:8000`, and you can interact with it via the HTML form at `http://127.0.0.1:8000/`.
+## 🛠️ Tech Stack
 
----
+* Python (3.9+)
+* `pandas`, `tqdm`, `concurrent.futures`
+* Gemini / Groq API (or any chat-completion LLM)
+* Ollama (for local LLaMA3 or other open models)
+* FastAPI (optional, for web API interface)
 
-## Auto-Start Application on Boot (Windows)
+## 🌐 Use Cases
 
-To have this application start automatically when your computer boots up, follow these steps:
+* Moon visibility reporting for Islamic calendar (Hilal sighting)
+* Astronomical event tracking and reporting
+* Educational tools for lunar phases
+* Integration into observatory or planetarium dashboards
 
-### Step 1: Create the Batch File (`start_app.bat`)
+## 🔍 Keywords
 
-1. **Create a batch file** `start_app.bat` inside the project directory with the following content:
-
-   ```bat
-   @echo off
-   cd /d D:\Moon\AI_Moon_Visibilty_Reporting\
-   call conda activate moon-env
-   uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-   ```
-
-   This batch file activates the `moon-env` environment and starts the FastAPI app with `uvicorn`.
-
-### Step 2: Create the VBScript (`start_app.vbs`)
-
-1. **Create a VBScript** `start_app.vbs` inside the same directory with the following content:
-
-   ```vbs
-   Set WshShell = CreateObject("WScript.Shell")
-   WshShell.Run chr(34) & "D:\Moon\AI_Moon_Visibilty_Reporting\start_app.bat" & Chr(34), 0
-   Set WshShell = Nothing
-   ```
-
-   This script will silently run the `start_app.bat` file without showing a command prompt window.
-
-### Step 3: Add the VBScript to the Startup Folder
-
-1. Press `Win + R` to open the **Run** dialog, type `shell:startup`, and press **Enter**. This will open the **Startup** folder.
-2. Copy the `start_app.vbs` file into the **Startup** folder.
-
-Now, every time your computer restarts, the FastAPI server will start automatically, and you don't have to manually run the batch file.
-
----
-
-## HTML Form Styling
-
-The form is styled to center itself in the middle of the page for a better user experience. The updated HTML page includes input fields for the **Date**, **Islamic Month**, and **Islamic Year**.
-
----
-
-## Troubleshooting
-
-- **If the FastAPI server is not accessible**, make sure your firewall allows connections on port `8000`.
-- **If you encounter errors related to the dependencies**, check that all required packages are installed by running `pip list` or `conda list`.
-- **For API errors**, make sure that the necessary API keys and configurations (like `.env` files) are properly set up.
-
----
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
+moon report generator, lunar visibility, hilal sighting, ai moon report, llama3 moon, gemini groq, ollama moon visibility, moon phase api, astronomy ai, moon python, islamic calendar ai, llm moon sighting, moon visibility generator
 ```
 
-### Summary of Updates in `README.md`:
+## 📦 Example Usage
 
-1. **How to Run the Application**: Instructions on how to install dependencies and run the FastAPI server.
-2. **Auto-Start on Boot**: Detailed instructions on how to automatically run the FastAPI app when the computer starts using a `start_app.bat` batch file and a `start_app.vbs` VBScript.
-3. **Troubleshooting**: General tips on resolving issues that may arise during setup.
+```python
+generator = MoonReportGenerator()
+prompts = generator.make_prompt(row)
+responses = generator.generate_all(prompts)
+```
 
-This should now fully document how to use the app and set it up to run on startup.
+---
+
+Would you like me to include code examples, installation instructions, or a full `README.md` file?
