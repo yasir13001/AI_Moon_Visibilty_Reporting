@@ -72,7 +72,7 @@ To have this application start automatically when your computer boots up, follow
 
    ```bat
    @echo off
-   cd /d D:\Moon\AI_Moon_Visibilty_Reporting\
+   cd to\the\project\AI_Moon_Visibilty_Reporting\
    call conda activate moon-env
    uvicorn main:app --host 127.0.0.1 --port 8000 --reload
    ```
@@ -85,7 +85,7 @@ To have this application start automatically when your computer boots up, follow
 
    ```vbs
    Set WshShell = CreateObject("WScript.Shell")
-   WshShell.Run chr(34) & "D:\Moon\AI_Moon_Visibilty_Reporting\start_app.bat" & Chr(34), 0
+   WshShell.Run chr(34) & "to\the\project\dir\AI_Moon_Visibilty_Reporting\start_app.bat" & Chr(34), 0
    Set WshShell = Nothing
    ```
 
@@ -119,7 +119,7 @@ The form is styled to center itself in the middle of the page for a better user 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 ```
 
-### Summary of Updates in `README.md`:
+## Summary of Updates in `README.md`:
 
 1. **How to Run the Application**: Instructions on how to install dependencies and run the FastAPI server.
 2. **Auto-Start on Boot**: Detailed instructions on how to automatically run the FastAPI app when the computer starts using a `start_app.bat` batch file and a `start_app.vbs` VBScript.
