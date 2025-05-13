@@ -39,6 +39,4 @@ prompts = generator.make_prompt(row)
 responses = generator.generate_all(prompts)
 ```
 
----
 
-Would you like me to include code examples, installation instructions, or a full `README.md` file?
