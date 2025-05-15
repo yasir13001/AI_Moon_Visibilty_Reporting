@@ -1,35 +1,33 @@
-from pdf_gene import MoonCalc, generate_pdf
+import re
+import os
+import time
+import json
 from datetime import datetime
-import requests
+from dotenv import load_dotenv
+from collections import Counter
+from fastapi.exceptions import HTTPException
 from tqdm import tqdm
 import pandas as pd
 from google import genai
-import os
-from dotenv import load_dotenv
-import json
 from markdown_pdf import MarkdownPdf, Section
-from collections import Counter
-import re
-import webbrowser
 from ollama import Client
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from groq import Groq
-import time
-
-
+from src.pdf_gene import MoonCalc
+from src.config import Settings
 
 
 class GenerateReport:
-    def __init__(self, df: pd.DataFrame, date: str, islamic_month: str, islamic_year: str):
-        load_dotenv(dotenv_path='../.env')
+    def __init__(
+        self, df: pd.DataFrame, date: str, islamic_month: str, islamic_year: str
+    ):
+        load_dotenv()
         self.api_key = os.getenv("GEMINI_API_KEY")
         self.Huggingface_api_key = os.getenv("Huggingface_api_key")
         self.Groq_api_key = os.getenv("Groq_api_key")
         self.date = date
         self.month = islamic_month
         self.year = islamic_year
-        self.path = "Data"
-        self.dst = "Output"
         self.df = pd.DataFrame()
         self.responses = []
         self.all_df = df
@@ -40,58 +38,86 @@ class GenerateReport:
         formatted_date = date_obj.strftime("%Y-%m-%d")
         all_df = self.all_df
 
-        moon = MoonCalc(df=all_df, date=formatted_date, Month=self.month, year=self.year ,dst=self.dst)
+        moon = MoonCalc(
+            df=all_df,
+            date=formatted_date,
+            Month=self.month,
+            year=self.year,
+        )
         df = moon.calculate()
-        #Moon age included as a deciding factor in the prompt
+        # Moon age included as a deciding factor in the prompt
         moon_age = moon.Select_city()
         moon_age = moon_age["age"]
         self.moon_age = moon_age
-        
-        df[['Station', 'SunsetTime']] = df['STATION(Sunset)'].str.extract(r'^(.*?)\s*\((.*?)\)$')
-        df.drop(columns=['STATION(Sunset)'], inplace=True)
 
-        df = df[['Station', 'SunsetTime', 'LAG TIME(Minutes)', 'MOON ALTITUDE(Degrees)',
-                 'SUN_AZIMUTH(Degrees)', 'DAZ(Degrees)', 'ELONGATION(Degrees)',
-                 'ILLUMINATION(%)', 'CRITERION']]
+        df[["Station", "SunsetTime"]] = df["STATION(Sunset)"].str.extract(
+            r"^(.*?)\s*\((.*?)\)$"
+        )
+        df.drop(columns=["STATION(Sunset)"], inplace=True)
 
-        df.columns = ['Station', 'SunsetTime', 'LagTime', 'MoonAltitude', 'SunAzimuth',
-                      'DAZ', 'Elongation', 'Illumination', 'Criterion']
+        df = df[
+            [
+                "Station",
+                "SunsetTime",
+                "LAG TIME(Minutes)",
+                "MOON ALTITUDE(Degrees)",
+                "SUN_AZIMUTH(Degrees)",
+                "DAZ(Degrees)",
+                "ELONGATION(Degrees)",
+                "ILLUMINATION(%)",
+                "CRITERION",
+            ]
+        ]
+
+        df.columns = [
+            "Station",
+            "SunsetTime",
+            "LagTime",
+            "MoonAltitude",
+            "SunAzimuth",
+            "DAZ",
+            "Elongation",
+            "Illumination",
+            "Criterion",
+        ]
         self.df = df
 
     def make_prompt(self, row):
         visibility_mapping = {
-            'A': 'Easily visible',
-            'B': 'Visible under perfect conditions',
-            'C': 'May need optical aid to find the crescent Moon',
-            'D': 'Will need optical aid to find the crescent Moon',
-            'E': 'Not visible with a telescope',
-            'F': 'Not visible, below the Danjon limit'
+            "A": "Easily visible",
+            "B": "Visible under perfect conditions",
+            "C": "May need optical aid to find the crescent Moon",
+            "D": "Will need optical aid to find the crescent Moon",
+            "E": "Not visible with a telescope",
+            "F": "Not visible, below the Danjon limit",
         }
 
-        visibility_description = visibility_mapping.get(row['Criterion'], 'Unknown visibility criterion')
-        illumination = float(row['Illumination'])
-        moon_altitude = float(row['MoonAltitude'])
+        visibility_description = visibility_mapping.get(
+            row["Criterion"], "Unknown visibility criterion"
+        )
+        illumination = float(row["Illumination"])
+        moon_altitude = float(row["MoonAltitude"])
 
         illumination_description = (
             "The illumination is high, indicating good visibility."
-            if illumination > 0.8 else
-            "The illumination is low, which might make the Moon harder to see."
+            if illumination > 0.8
+            else "The illumination is low, which might make the Moon harder to see."
         )
 
         altitude_description = (
             "The Moon is high above the horizon, aiding visibility."
-            if moon_altitude > 8 else
-            "The Moon is low on the horizon, which may limit visibility."
+            if moon_altitude > 8
+            else "The Moon is low on the horizon, which may limit visibility."
         )
 
         return (
             "Here is the required format:\n"
             "{\n"
-            "  \"Station\": \"...\",\n"
-            "  \"visibility criterion\": \"...\",\n"
-            "  \"Time\": \"...\",\n"
-            "  \"Date\": \"...\",\n"
-            "  \"Conclusion\": \"...\"\n"
+            '  "Station": "...",\n'
+            '  "visibility criterion": "...",\n'
+            '  "Time": "...",\n'
+            '  "Date": "...",\n'
+            '  "Conclusion": "..."\n'
             "}\n"
             "Answer based on the following data:\n"
             f"On {self.date}, at station {row['Station']}, at the time of Sunset {row['SunsetTime']}, "
@@ -104,20 +130,20 @@ class GenerateReport:
 
     def query_gemini(self, prompt):
         client = genai.Client(api_key=self.api_key)
-        response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash", contents=prompt
+        )
         return response.text
-    
+
     def query_groq(self, prompt):
 
         client = Groq(api_key=self.Groq_api_key)
 
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}],               
+            messages=[{"role": "user", "content": prompt}],
         )
         return response.choices[0].message.content
-    
-
 
     def generate_all(self, prompts):
         results = [None] * len(prompts)
@@ -136,42 +162,38 @@ class GenerateReport:
                     print(f"[ERROR] Prompt {idx} failed: {e}")
                     results[idx] = None  # or some fallback
 
-        print(f"[INFO] Finished {len(prompts)} prompts in {time.time() - start_time:.2f}s")
+        print(
+            f"[INFO] Finished {len(prompts)} prompts in {time.time() - start_time:.2f}s"
+        )
         return results
 
-
-
-    def query_ollama(self,prompt: str, model: str = "llama3.2"):
-        client = Client(host='http://localhost:11434')
+    def query_ollama(self, prompt: str, model: str = "llama3.2"):
+        client = Client(host="http://localhost:11434")
         response = client.chat(
-            model=model,
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
+            model=model, messages=[{"role": "user", "content": prompt}]
         )
-        return response['message']['content']
-
-
+        return response["message"]["content"]
 
     def get_ai_responses(self):
         tqdm.pandas()
 
         # Step 1: Generate prompts for each row
-        self.df['prompt'] = self.df.progress_apply(lambda row: self.make_prompt(row), axis=1)
+        self.df["prompt"] = self.df.progress_apply(
+            lambda row: self.make_prompt(row), axis=1
+        )
 
         # Step 2: Run all prompts in parallel
-        all_prompts = self.df['prompt'].tolist()
+        all_prompts = self.df["prompt"].tolist()
         responses = self.generate_all(all_prompts)
 
         # Step 3: Assign responses to new column
-        self.df['llama_response'] = responses
-
+        self.df["llama_response"] = responses
 
     def sanitize_and_parse_json(self, text):
         try:
             return json.loads(text)
         except json.JSONDecodeError:
-            match = re.search(r'\{.*\}', text, re.DOTALL)
+            match = re.search(r"\{.*\}", text, re.DOTALL)
             if match:
                 try:
                     return json.loads(match.group())
@@ -188,9 +210,9 @@ class GenerateReport:
                 print("Invalid JSON after cleaning")
 
     def summarize_visibility_report(self, country="Pakistan"):
-        conclusions = [entry['Conclusion'] for entry in self.responses]
-        times = [entry['Time'] for entry in self.responses]
-        dates = [entry['Date'] for entry in self.responses]
+        conclusions = [entry["Conclusion"] for entry in self.responses]
+        times = [entry["Time"] for entry in self.responses]
+        dates = [entry["Date"] for entry in self.responses]
 
         most_common_conclusion, _ = Counter(conclusions).most_common(1)[0]
         most_common_time, _ = Counter(times).most_common(1)[0]
@@ -206,7 +228,7 @@ class GenerateReport:
         differences_found = False
 
         for entry in self.responses:
-            if entry['Conclusion'] != most_common_conclusion:
+            if entry["Conclusion"] != most_common_conclusion:
                 differences_found = True
                 report += (
                     f"- {entry['Station']} (on {entry['Date']} at {entry['Time']}):\n"
@@ -233,9 +255,9 @@ Task:
 """
 
         try:
-#             content = query_gemini(prompt)
-            content =  self.query_gemini(prompt)
-            
+            #             content = query_gemini(prompt)
+            content = self.query_gemini(prompt)
+
         except Exception as e:
             # Optional: Log the full error
             print(f"Gemini Error: {e}")
@@ -245,24 +267,20 @@ Task:
         pdf.add_section(Section(content))
         pdf.meta["title"] = "Moon Visibility Report"
         pdf.meta["author"] = "Artificial Intelligence"
-        # Ensure Output directory exists
-        output_dir = os.path.join(os.path.dirname(__file__), "Output")
-        os.makedirs(output_dir, exist_ok=True)  # Creates the directory if it doesn't exist
+        os.makedirs(Settings.OUTPUT_DIR, exist_ok=True)
 
         # Save PDF to Output directory
         pdf_file = f"Visibility_report({self.date}).pdf"
-        pdf_path = os.path.join(output_dir, pdf_file)
+        pdf_path = os.path.join(Settings.OUTPUT_DIR, pdf_file)
         pdf.save(pdf_path)
 
         # Open PDF in default browser
-        #webbrowser.open_new(f"file://{os.path.abspath(pdf_path)}")
+        # webbrowser.open_new(f"file://{os.path.abspath(pdf_path)}")
         return pdf_path
-    
 
     def run_all(self):
         self.prepare_dataframe()
         self.get_ai_responses()
         self.parse_responses()
         path = self.generate_pdf_report()
-        return(path)
-
+        return path

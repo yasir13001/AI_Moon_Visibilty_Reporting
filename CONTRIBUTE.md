@@ -55,7 +55,7 @@ Before running the app, make sure to install the required dependencies.
    To run the FastAPI server locally, use the following command:
 
    ```bash
-   uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+   uvicorn src.main:app --host 127.0.0.1 --port 8000 --reload
    ```
 
    This will start the server on `http://127.0.0.1:8000`, and you can interact with it via the HTML form at `http://127.0.0.1:8000/`.
