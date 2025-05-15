@@ -6,3 +6,7 @@ tqdm
 pandas
 markdown-pdf
 python-dotenv
+fpdf
+google-genai
+ollama
+groq
