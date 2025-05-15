@@ -32,6 +32,8 @@ MANIFEST
 *.manifest
 *.spec
 
+artifacts/
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
