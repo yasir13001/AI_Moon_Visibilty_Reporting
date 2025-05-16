@@ -15,18 +15,18 @@ from src.config import Settings
 all_data_df = pd.DataFrame()
 
 ISLAMIC_MONTHS: list[str] = [
-    "Muharram",
-    "Safar",
-    "Rabi-al-Awwal",
-    "Rabi-al-Thani",
-    "Jumada-al-Awwal",
-    "Jumada-al-Thani",
-    "Rajab",
-    "Sha-ban",
-    "Ramadan",
-    "Shawwal",
-    "Dhu-al-Qadah",
-    "Dhu-al-Hijjah",
+    "MUHARRAM",
+    "SAFAR",
+    "RABI-UL-AWWAL",
+    "RABI-US-SANI",
+    "JAMADI-UL-AWWAL",
+    "JAMADI-US-SANI",
+    "RAJAB",
+    "SHABAN",
+    "RAMADAN",
+    "SHAWWAL",
+    "ZUL-QADAH",
+    "ZUL-HIJJAH",
 ]
 
 
