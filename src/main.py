@@ -14,6 +14,21 @@ from src.config import Settings
 
 all_data_df = pd.DataFrame()
 
+ISLAMIC_MONTHS: list[str] = [
+    "Muharram",
+    "Safar",
+    "Rabi-al-Awwal",
+    "Rabi-al-Thani",
+    "Jumada-al-Awwal",
+    "Jumada-al-Thani",
+    "Rajab",
+    "Sha-ban",
+    "Ramadan",
+    "Shawwal",
+    "Dhu-al-Qadah",
+    "Dhu-al-Hijjah",
+]
+
 
 def load_files(path):
     global all_data_df
@@ -48,7 +63,9 @@ app.add_middleware(
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    return templates.TemplateResponse(request=request, name="index.html")
+    return templates.TemplateResponse(
+        request=request, name="index.html", context={"islamic_months": ISLAMIC_MONTHS}
+    )
 
 
 @app.post("/generate-moon-parameters/")

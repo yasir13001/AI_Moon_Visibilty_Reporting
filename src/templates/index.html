@@ -5,6 +5,7 @@
     <title>Moon Report Generator</title>
     <style>
       body {
+        margin: 0px;
         font-family: "Segoe UI", sans-serif;
         background-color: #eef2f7;
         display: flex;
@@ -25,10 +26,12 @@
       }
       input,
       label,
+      select,
       button {
         width: 95%;
         display: block;
       }
+      select,
       input {
         padding: 10px;
         margin-bottom: 15px;
@@ -39,20 +42,25 @@
         width: 200px;
         background-color: #007bff;
         color: white;
-        padding: 12px 5px 12px 12px; /* Optional: change left padding */
-        margin: 10px auto 0 auto; /* Top auto-center bottom auto */
+        padding: 12px 5px 12px 12px; 
+        margin: 10px; 
         border: none;
         border-radius: 5px;
         cursor: pointer;
-        display: block; /* Needed for margin auto to work */
+        display: block; 
       }
       button:hover {
         background-color: #0056b3;
       }
       #responseMessage {
         margin-top: 15px;
+        text-align: center;
         color: green;
         font-weight: bold;
+      }
+
+      .btn-class{
+        display: flex;
       }
     </style>
   </head>
@@ -63,18 +71,25 @@
         <label for="date">Date (DD-MM-YYYY):</label>
         <input type="text" id="date" value="28-05-2025" required />
 
+
         <label for="month">Islamic Month:</label>
-        <input type="text" id="month" value="ZUL-HAJJAH" required />
+        <select id="month" required>
+          {% for month in islamic_months %}
+          <option value={{ month }}>{{ month }}</option>
+          {% endfor %}
+        </select>
 
         <label for="year">Islamic Year:</label>
-        <input type="text" id="year" value="1446" required />
+        <input type="number" id="year" value="1446" required />
 
-        <button type="button" onclick="generateReport('moon-parameters')">
-          Generate Moon Parameters
-        </button>
-        <button type="button" onclick="generateReport('visibility-report')">
-          Generate Visibility Report
-        </button>
+        <div class="btn-class">
+          <button type="button" onclick="generateReport('moon-parameters')">
+            Generate Moon Parameters
+          </button>
+          <button type="button" onclick="generateReport('visibility-report')">
+            Generate Visibility Report
+          </button>
+        </div>
       </form>
       <p id="responseMessage"></p>
     </div>
