@@ -129,7 +129,7 @@ class MoonCalc:
         return df
 
     def calculate(self):
-        # Use the pre-loaded dataframe
+        # Use the pre-loaded DataFrame
         dfs = self.sort()
         dfd = pd.DataFrame()
         if not dfs.empty:
