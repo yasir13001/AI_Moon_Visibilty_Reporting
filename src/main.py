@@ -10,6 +10,7 @@ from src.pdf_gene import load_all_files, generate_pdf
 from src.schemas import ReportRequest
 from src.prompt import GenerateReport
 from src.config import Settings
+from fastapi.staticfiles import StaticFiles
 
 
 all_data_df = pd.DataFrame()
@@ -50,6 +51,7 @@ templates = Jinja2Templates(directory="src/templates")
 
 
 app = FastAPI(lifespan=startup)
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware(

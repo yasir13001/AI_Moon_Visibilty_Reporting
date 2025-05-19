@@ -10,3 +10,4 @@ fpdf
 google-genai
 ollama
 groq
+jinja2
