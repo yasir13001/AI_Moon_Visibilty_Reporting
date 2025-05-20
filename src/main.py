@@ -66,8 +66,9 @@ app.add_middleware(
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse(
-        request=request, name="index.html", context={"islamic_months": ISLAMIC_MONTHS}
-    )
+    "index.html",  # template name (positional)
+    {"request": request, "islamic_months": ISLAMIC_MONTHS}
+)
 
 
 @app.post("/generate-moon-parameters/")
