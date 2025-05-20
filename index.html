@@ -16,11 +16,7 @@
 
 
         <label for="month">Islamic Month:</label>
-        <select id="month" required>
-          {% for month in islamic_months %}
-          <option value="{{ month }}">
-          {% endfor %}
-        </select>
+        <select id="month" required></select>
 
         <label for="year">Islamic Year:</label>
         <input type="number" id="year" value="1446" required />
@@ -38,49 +34,73 @@
     </div>
 
     <script>
-      function generateReport(type) {
-        const formData = {
-          date: document.getElementById("date").value,
-          islamic_month: document.getElementById("month").value,
-          islamic_year: document.getElementById("year").value,
-        };
+    // Populate Islamic months dropdown
+    const islamicMonths = [
+      "MUHARRAM",
+      "SAFAR",
+      "RABI-UL-AWWAL",
+      "RABI-US-SANI",
+      "JAMADI-UL-AWWAL",
+      "JAMADI-US-SANI",
+      "RAJAB",
+      "SHABAN",
+      "RAMADAN",
+      "SHAWWAL",
+      "ZUL-QADAH",
+      "ZUL-HIJJAH"
+    ];
 
-        let endpoint = "";
-        if (type === "moon-parameters") {
-          endpoint = "/generate-moon-parameters/";
-        } else {
-          endpoint = "/generate-visibility-report/";
-        }
+    const select = document.getElementById("month");
+    islamicMonths.forEach(month => {
+      const option = document.createElement("option");
+      option.value = month;
+      option.textContent = month;
+      select.appendChild(option);
+    });
 
-        fetch(`http://127.0.0.1:8000${endpoint}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        })
-          .then((response) => {
-            console.log(response);
-            if (!response.ok) throw new Error("Failed to generate report.");
-            return response.blob();
-          })
-          .then((blob) => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `${type.replace("-", "_")}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            document.getElementById("responseMessage").innerText =
-              "Download started.";
-          })
-          .catch((error) => {
-            document.getElementById("responseMessage").innerText =
-              "Error: " + error.message;
-            document.getElementById("responseMessage").style.color = "red";
-          });
+    // Your existing function
+    function generateReport(type) {
+      const formData = {
+        date: document.getElementById("date").value,
+        islamic_month: document.getElementById("month").value,
+        islamic_year: document.getElementById("year").value,
+      };
+
+      let endpoint = "";
+      if (type === "moon-parameters") {
+        endpoint = "/generate-moon-parameters/";
+      } else {
+        endpoint = "/generate-visibility-report/";
       }
-    </script>
+
+      fetch(`http://127.0.0.1:8000${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to generate report.");
+          return response.blob();
+        })
+        .then((blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${type.replace("-", "_")}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          document.getElementById("responseMessage").innerText =
+            "Download started.";
+        })
+        .catch((error) => {
+          document.getElementById("responseMessage").innerText =
+            "Error: " + error.message;
+          document.getElementById("responseMessage").style.color = "red";
+        });
+    }
+  </script>
   </body>
 </html>
