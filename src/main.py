@@ -15,21 +15,6 @@ from fastapi.staticfiles import StaticFiles
 
 all_data_df = pd.DataFrame()
 
-ISLAMIC_MONTHS: list[str] = [
-    "MUHARRAM",
-    "SAFAR",
-    "RABI-UL-AWWAL",
-    "RABI-US-SANI",
-    "JAMADI-UL-AWWAL",
-    "JAMADI-US-SANI",
-    "RAJAB",
-    "SHABAN",
-    "RAMADAN",
-    "SHAWWAL",
-    "ZUL-QADAH",
-    "ZUL-HIJJAH",
-]
-
 
 def load_files(path):
     global all_data_df
@@ -46,28 +31,20 @@ async def startup(app: FastAPI):
     finally:
         executor.shutdown(wait=True)
 
-
-templates = Jinja2Templates(directory=".")
-
-
 app = FastAPI(lifespan=startup)
 app.mount("/static", StaticFiles(directory="."), name="static")
 
-# app.mount("/static", StaticFiles(directory="static"), name="static")
+# Serve index.html at root
+@app.get("/", response_class=FileResponse)
+async def read_index():
+    return FileResponse("index.html")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
-
-
-@app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
-    return templates.TemplateResponse(
-    "index.html",  # template name (positional)
-    {"request": request, "islamic_months": ISLAMIC_MONTHS}
 )
 
 
