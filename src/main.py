@@ -47,11 +47,11 @@ async def startup(app: FastAPI):
         executor.shutdown(wait=True)
 
 
-templates = Jinja2Templates(directory="src/templates")
+templates = Jinja2Templates(directory=".")
 
 
 app = FastAPI(lifespan=startup)
-app.mount("/static", StaticFiles(directory="src/static"), name="static")
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware(
