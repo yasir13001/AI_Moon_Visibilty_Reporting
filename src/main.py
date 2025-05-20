@@ -32,7 +32,8 @@ async def startup(app: FastAPI):
         executor.shutdown(wait=True)
 
 app = FastAPI(lifespan=startup)
-app.mount("/static", StaticFiles(directory="."), name="static")
+#app.mount("/static", StaticFiles(directory="."), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Serve index.html at root
 @app.get("/", response_class=FileResponse)
