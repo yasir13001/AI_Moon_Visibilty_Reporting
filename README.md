@@ -84,3 +84,16 @@ This file contains detailed instructions and parameters to customize how the app
 
 We believe in open development and transparent collaboration.
 To get started with contributing, check out [CONTRIBUTE.md](./CONTRIBUTE.md).
+
+## 📊 Data Source
+
+This project relies on astronomical datasets for accurate moon visibility reporting. One trusted source is:
+
+HM Nautical Almanac Office (HMNAO)
+The HMNAO is a specialized division of the UK Hydrographic Office that provides high-precision astronomical and celestial navigation data. Their ephemerides and lunar position data are internationally respected and ideal for research-grade applications.
+
+If you'd like to obtain lunar visibility data for your specific location:
+
+📬 Contact HMNAO:
+CustomerServices@UKHO.gov.uk
+Kindly email them with your location, purpose, and required date range. They usually provide custom datasets upon request.
