@@ -58,7 +58,8 @@
       select.appendChild(option);
     });
 
-    // Your existing function
+   const backendURL = "https://moonai-backend.onrender.com"; // Use your real Render URL
+
     function generateReport(type) {
       const formData = {
         date: document.getElementById("date").value,
@@ -73,7 +74,7 @@
         endpoint = "/generate-visibility-report/";
       }
 
-      fetch(`http://127.0.0.1:8000${endpoint}`, {
+      fetch(`${backendURL}${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

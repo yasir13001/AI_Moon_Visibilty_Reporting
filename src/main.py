@@ -75,9 +75,3 @@ def generate_visibility_report(data: ReportRequest):
     )
 
 
-# @app.post("/generate-report/")
-# async def generate_report(data: ReportRequest):
-#     report = GenerateReport(data.date, data.islamic_month, data.islamic_year)
-#     pdf_path = report.run_all()  # Return full path to PDF
-#     print(pdf_path)
-#     return FileResponse(path=pdf_path, filename=pdf_path.split("\\")[-1], media_type='application/pdf')
