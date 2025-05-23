@@ -2,41 +2,120 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Moon Report Generator</title>
-
-     <link rel="stylesheet" href="static/style.css">
-     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoonAI - Lunar Visibility Reports</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 
   </head>
   <body>
-    <div class="container">
-      <h2>Moon Report Generator</h2>
-      <form id="reportForm">
-        <label for="date">Date (DD-MM-YYYY):</label>
-        <input type="text" id="date" value="28-05-2025" required />
-
-
-        <label for="month">Islamic Month:</label>
-        <select id="month" required></select>
-
-        <label for="year">Islamic Year:</label>
-        <input type="number" id="year" value="1446" required />
-
-        <div class="btn-class">
-          <button type="button" onclick="generateReport('moon-parameters')">
-            Generate Moon Parameters
-          </button>
-          <button type="button" onclick="generateReport('visibility-report')">
-            Generate Visibility Report
-          </button>
-        </div>
-      </form>
-      <p id="responseMessage"></p>
+    <div class="theme-toggle-container">
+      <button id="themeToggle" class="theme-toggle">🌙 Dark Mode</button>
     </div>
 
+    <section id="landingPage">
+      <h1 class="project-title">MoonAI</h1>
+      <p class="slogan">Your AI-powered Lunar Visibility Reports</p>
+      <p class="description">An AI-powered system for generating lunar visibility reports using LLMs (Large Language Models) such as Gemini, Groq, and LLaMA3 (via Ollama).</p>
+      <p class="description">Designed for astronomers, developers, and researchers interested in moon sighting, Hilal reports, and Islamic calendar computations.</p>
+      <button id="getStartedBtn" class="action-button">Get Started</button>
+    </section>
+
+    <div class="container view" id="calendarOptionContainer">
+      <section id="calendarOption" class="view-content">
+        <h2 class="section-title">Choose Calendar Option</h2>
+        <div class="calendar-options">
+          <label class="radio-label">
+            <input type="radio" name="calendarType" value="gregorian" checked> Gregorian
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="calendarType" value="hijri"> Hijri
+          </label>
+        </div>
+        <p id="currentDateDisplay" class="date-display"></p>
+        <button id="continueToFormBtn" class="action-button">Continue</button>
+      </section>
+    </div>
+
+    <div class="container view" id="reportFormSectionContainer">
+      <section id="reportFormSection" class="view-content">
+        <h2 class="section-title">Moon Report Generator</h2>
+        <form id="reportForm">
+          <label for="date">Date (DD-MM-YYYY):</label>
+          <input type="text" id="date" value="28-05-2025" required />
+
+          <label for="month">Islamic Month:</label>
+          <select id="month" required></select>
+
+          <label for="year">Islamic Year:</label>
+          <input type="number" id="year" value="1446" required />
+
+          <div class="btn-class">
+            <button type="button" onclick="generateReport('moon-parameters')">
+              Generate Moon Parameters
+            </button>
+            <button type="button" onclick="generateReport('visibility-report')">
+              Generate Visibility Report
+            </button>
+          </div>
+        </form>
+        <p id="responseMessage"></p>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <p>&copy; 2025 MoonAI. Explore the cosmos, one report at a time!</p>
+    </footer>
+
     <script>
-    // Populate Islamic months dropdown
-    const islamicMonths = [
+      // Elements
+      const body = document.body;
+      const themeToggle = document.getElementById('themeToggle');
+      const landingPage = document.getElementById('landingPage');
+      const getStartedBtn = document.getElementById('getStartedBtn');
+      const calendarOptionContainer = document.getElementById('calendarOptionContainer');
+      const calendarTypeRadios = document.querySelectorAll('input[name="calendarType"]');
+      const currentDateDisplay = document.getElementById('currentDateDisplay');
+      const continueToFormBtn = document.getElementById('continueToFormBtn');
+      const reportFormSectionContainer = document.getElementById('reportFormSectionContainer');
+      const dateInput = document.getElementById("date");
+      const monthSelect = document.getElementById("month");
+      const yearInput = document.getElementById("year");
+      const responseMessageElement = document.getElementById("responseMessage");
+
+      // --- Theme Toggle Logic ---
+      let isDarkMode = true; // Default to dark mode
+
+      function applyTheme() {
+        if (isDarkMode) {
+          body.classList.remove('light-mode');
+          themeToggle.textContent = '🌙 Dark Mode';
+        } else {
+          body.classList.add('light-mode');
+          themeToggle.textContent = '☀️ Light Mode';
+        }
+      }
+
+      themeToggle.addEventListener('click', () => {
+        isDarkMode = !isDarkMode;
+        applyTheme();
+      });
+
+      // Apply initial theme
+      applyTheme();
+
+      // --- Section Reveal Logic ---
+      function revealSection(sectionContainerId) {
+        const sectionContainer = document.getElementById(sectionContainerId);
+        sectionContainer.classList.add('active');
+        // Scroll to the newly revealed section container
+        sectionContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      // --- Date and Calendar Logic ---
+
+      const islamicMonths = [
       "MUHARRAM",
       "SAFAR",
       "RABI-UL-AWWAL",
@@ -51,42 +130,114 @@
       "ZUL-HIJJAH"
     ];
 
-    const select = document.getElementById("month");
-    islamicMonths.forEach(month => {
-      const option = document.createElement("option");
-      option.value = month;
-      option.textContent = month;
-      select.appendChild(option);
-    });
+      // Populate Islamic months dropdown
+      islamicMonths.forEach(month => {
+        const option = document.createElement("option");
+        option.value = month;
+        option.textContent = month;
+        monthSelect.appendChild(option);
+      });
 
-   const backendURL = "https://moonai-backend.onrender.com"; // Use your real Render URL
-
-    function generateReport(type) {
-      const formData = {
-        date: document.getElementById("date").value,
-        islamic_month: document.getElementById("month").value,
-        islamic_year: document.getElementById("year").value,
-      };
-
-      let endpoint = "";
-      if (type === "moon-parameters") {
-        endpoint = "/generate-moon-parameters/";
-      } else {
-        endpoint = "/generate-visibility-report/";
+      // Set default selected month to ZUL-QADAH if it exists
+      const defaultIslamicMonth = "ZUL-QADAH";
+      if (Array.from(monthSelect.options).some(option => option.value === defaultIslamicMonth)) {
+        monthSelect.value = defaultIslamicMonth;
       }
 
-      fetch(`${backendURL}${endpoint}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
-        .then((response) => {
-          if (!response.ok) throw new Error("Failed to generate report.");
-          return response.blob();
-        })
-        .then((blob) => {
+      function getGregorianDate() {
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+        const yyyy = today.getFullYear();
+        return `${dd}-${mm}-${yyyy}`;
+      }
+
+      function getHijriDate() {
+        // IMPORTANT: Accurate Hijri date conversion requires a robust library or API.
+        // This is a simplified placeholder and may not be astronomically accurate.
+        // For a production app, consider using a dedicated Hijri calendar library
+        // or an external API for precise conversion.
+        const today = new Date();
+        // A very basic and often inaccurate mapping for demonstration
+        // This approximation assumes current year is 2025 and Hijri 1446
+        const year = today.getFullYear() + (1446 - 2025);
+        const monthIndex = today.getMonth();
+        const day = today.getDate();
+
+        const hijriMonthNames = [
+            "Muharram", "Safar", "Rabi' al-Awwal", "Rabi' al-Thani",
+            "Jumada al-Ula", "Jumada al-Thaniyah", "Rajab", "Sha'ban",
+            "Ramadan", "Shawwal", "Dhul-Qadah", "Dhul-Hijjah"
+        ];
+        // This is a very rough mapping and will not be accurate for all dates
+        const hijriMonth = hijriMonthNames[monthIndex % hijriMonthNames.length];
+
+        return `${String(day).padStart(2, '0')}-${hijriMonth}-${year}`;
+      }
+
+      function updateDateDisplay() {
+        const selectedCalendar = document.querySelector('input[name="calendarType"]:checked').value;
+        let dateString = "";
+        if (selectedCalendar === "gregorian") {
+          dateString = getGregorianDate();
+          dateInput.value = dateString; // Update form date input
+          currentDateDisplay.innerText = `Current Gregorian Date: ${dateString}`;
+        } else {
+          dateString = getHijriDate();
+          currentDateDisplay.innerText = `Current Hijri Date: ${dateString}`;
+        }
+      }
+
+      // Initial date display when calendar option view is shown
+      calendarTypeRadios.forEach(radio => {
+        radio.addEventListener('change', updateDateDisplay);
+      });
+
+      // --- Event Listeners for Navigation ---
+      getStartedBtn.addEventListener('click', () => {
+        revealSection('calendarOptionContainer');
+        updateDateDisplay(); // Display date immediately when view changes
+      });
+
+      continueToFormBtn.addEventListener('click', () => {
+        revealSection('reportFormSectionContainer');
+      });
+
+      // --- Report Generation Logic ---
+      const backendURL = "https://moonai-backend.onrender.com"; // Your real Render URL
+
+      async function generateReport(type) {
+        responseMessageElement.style.color = "var(--message-color-info)";
+        responseMessageElement.innerText = "Generating report, please wait...";
+
+        const formData = {
+          date: dateInput.value,
+          islamic_month: monthSelect.value,
+          islamic_year: yearInput.value,
+        };
+
+        let endpoint = "";
+        if (type === "moon-parameters") {
+          endpoint = "/generate-moon-parameters/";
+        } else {
+          endpoint = "/generate-visibility-report/";
+        }
+
+        try {
+          const response = await fetch(`${backendURL}${endpoint}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to generate report: ${response.status} ${response.statusText} - ${errorText}`);
+          }
+
+          const blob = await response.blob();
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
@@ -94,15 +245,16 @@
           document.body.appendChild(a);
           a.click();
           a.remove();
-          document.getElementById("responseMessage").innerText =
-            "Download started.";
-        })
-        .catch((error) => {
-          document.getElementById("responseMessage").innerText =
-            "Error: " + error.message;
-          document.getElementById("responseMessage").style.color = "red";
-        });
-    }
-  </script>
+          URL.revokeObjectURL(url);
+
+          responseMessageElement.style.color = "var(--message-color-success)";
+          responseMessageElement.innerText = "Download started successfully!";
+        } catch (error) {
+          responseMessageElement.style.color = "var(--message-color-error)";
+          responseMessageElement.innerText = "Error: " + error.message;
+          console.error("Fetch error:", error);
+        }
+      }
+    </script>
   </body>
 </html>
