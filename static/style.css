@@ -1,8 +1,8 @@
 /* CSS Variables for Themes */
 :root {
   /* Dark Mode Colors */
-  --bg-gradient-start: #1a202c;
-  --bg-gradient-end: #2d3748;
+  --bg-gradient-start: #010102;
+  --bg-gradient-end: #101724;
   --container-bg: #3a4750;
   --text-color: #e2e8f0;
   --label-color: #e2e8f0;
@@ -19,22 +19,22 @@
   --header-color: #e2e8f0;
   --footer-bg: #2d3748;
   --footer-text: #a0aec0;
-  --theme-toggle-bg: #4a5568;
+  --theme-toggle-bg: #152033;
   --theme-toggle-text: #e2e8f0;
   --theme-toggle-hover-bg: #5a6b7c;
 
   /* Landing Page Specific Colors (for plain background) */
   --landing-text-color-dark: #e2e8f0;
-  --landing-text-color-light: #2c3e50;
+  --landing-text-color-light: #070c11;
 }
 
 body.light-mode {
   /* Light Mode Colors */
-  --bg-gradient-start: #e0f7fa;
-  --bg-gradient-end: #f1f8e9;
+  --bg-gradient-start: #4fdff1;
+  --bg-gradient-end: #d9f8b6;
   --container-bg: #ffffff;
-  --text-color: #2c3e50;
-  --label-color: #333;
+  --text-color: #090e14;
+  --label-color: #0f0808;
   --input-bg: #f8f8f8;
   --input-border: #ccc;
   --input-focus-border: #007bff;
@@ -54,7 +54,7 @@ body.light-mode {
 
   /* Landing Page Specific Colors (for plain background) */
   --landing-text-color-dark: #2c3e50;
-  --landing-text-color-light: #2c3e50; /* Same as main text for consistency */
+  --landing-text-color-light: #05090c; /* Same as main text for consistency */
 }
 
 /* Reset */
@@ -65,12 +65,10 @@ body.light-mode {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  /* Updated background to include image */
-  background: linear-gradient(to bottom right, var(--bg-gradient-start), var(--bg-gradient-end)),
-              url('https://placehold.co/1920x1080/000000/FFFFFF/png?text=Solar+System+Silhouette') no-repeat center center fixed; /* Placeholder solar system image */
+  font-family: 'Inter', sans-serif; /* Default font for body text */
+  background: linear-gradient(to bottom right, var(--bg-gradient-start), var(--bg-gradient-end));
   background-size: cover; /* Cover the entire viewport */
-  background-blend-mode: overlay; /* Blend the gradient and image */
+  background-blend-mode: overlay; /* Blend the image with the gradient */
   min-height: 100vh; /* Use min-height for scrollable content */
   display: flex;
   flex-direction: column;
@@ -79,6 +77,23 @@ body {
   padding: 20px;
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Starfield container */
+#starfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1px; /* Base element for box-shadow stars */
+  height: 1px;
+  background: transparent;
+  z-index: -3; /* Ensure it's behind everything */
+  animation: subtleStarMove 30s linear infinite; /* Gentle movement */
+}
+
+@keyframes subtleStarMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-100px, -100px); } /* Slight drift */
 }
 
 .theme-toggle-container {
@@ -126,9 +141,9 @@ body {
   width: 100%;
   max-width: 700px; /* Allow wider for hero section */
   text-align: center;
-  padding: 60px 20px; /* More vertical padding */
+  padding: 60px 20px;
   margin-bottom: 30px;
-  color: var(--landing-text-color-dark); /* Use specific landing text color */
+  color: var(--landing-text-color-dark);
   transition: color 0.3s ease;
 }
 
@@ -137,7 +152,8 @@ body.light-mode #landingPage {
 }
 
 #landingPage .project-title {
-  font-size: 56px; /* Larger title */
+  font-family: 'Orbitron', sans-serif;
+  font-size: 56px;
   font-weight: 700;
   margin-bottom: 15px;
   letter-spacing: 2px;
@@ -145,62 +161,57 @@ body.light-mode #landingPage {
 }
 
 #landingPage .slogan {
-  font-size: 24px; /* Larger slogan */
+  font-size: 24px;
   margin-bottom: 30px;
   font-style: italic;
 }
 
 #landingPage .description {
-  font-size: 18px; /* Larger description */
+  font-size: 18px;
   margin-bottom: 40px;
   line-height: 1.7;
-  text-align: center; /* Center description text */
-  max-width: 600px; /* Constrain width for readability */
+  text-align: center;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
 }
 
 #landingPage .action-button {
-  width: auto; /* Allow button to size to content */
-  min-width: 200px; /* Minimum width for button */
-  padding: 18px 30px; /* Larger padding */
-  font-size: 20px; /* Larger font size */
-  margin-top: 0; /* Remove extra margin from action-button class */
+  width: auto;
+  min-width: 200px;
+  padding: 18px 30px;
+  font-size: 20px;
+  margin-top: 0;
 }
-
 
 /* General view transition styles */
 .view {
   opacity: 0;
-  max-height: 0; /* Initially collapsed */
+  max-height: 0;
   overflow: hidden;
-  pointer-events: none; /* Prevent interaction when hidden */
-  transition: opacity 0.5s ease-out, max-height 0.7s ease-out, margin-top 0.7s ease-out, padding 0.7s ease-out; /* Smooth transition */
-  margin-top: 0; /* No margin when hidden */
+  pointer-events: none;
+  transition: opacity 0.5s ease-out, max-height 0.7s ease-out, margin-top 0.7s ease-out, padding 0.7s ease-out;
+  margin-top: 0;
   padding: 0;
-  width: 100%; /* Ensure it takes full width of container */
+  width: 100%;
   text-align: center;
 }
 
 .view.active {
   opacity: 1;
-  max-height: 1000px; /* Sufficiently large to show content */
-  pointer-events: auto; /* Allow interaction when active */
-  margin-top: 30px; /* Add space when revealed */
-  padding: 40px 30px; /* Restore container padding */
+  max-height: 1000px;
+  pointer-events: auto;
+  margin-top: 30px;
+  padding: 40px 30px;
 }
 
-/* The landing page itself is not dynamically hidden/shown via .view.active */
-/* It's always visible, but its content is formatted by #landingPage */
-#landingPage.view { /* This rule will be ignored for #landingPage as it's not dynamically activated */
-  /* This ensures #landingPage is always visible and not collapsed */
+#landingPage {
   opacity: 1;
   max-height: none;
   pointer-events: auto;
   margin-top: 0;
-  padding: 60px 20px; /* Restore its specific padding */
+  padding: 60px 20px;
 }
-
 
 .section-title {
   text-align: center;
@@ -216,7 +227,7 @@ label {
   color: var(--label-color);
   font-weight: 500;
   font-size: 15px;
-  text-align: left; /* Align labels left */
+  text-align: left;
 }
 
 input,
@@ -263,9 +274,10 @@ body.light-mode select {
   gap: 15px;
 }
 
+/* Enhanced button styles */
 button {
   flex: 1 1 calc(50% - 7.5px);
-  background-color: var(--button-bg);
+  background: linear-gradient(145deg, var(--button-bg), var(--button-hover-bg));
   color: white;
   padding: 14px 15px;
   border: none;
@@ -273,43 +285,39 @@ button {
   cursor: pointer;
   font-weight: 600;
   font-size: 16px;
-  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 10px var(--shadow-color);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px var(--shadow-color), inset 0 2px 5px rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+button:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.75s ease-out;
+  transform: translate(-50%, -50%) rotate(45deg);
+  opacity: 0;
+}
+
+button:hover:before {
+  width: 0;
+  height: 0;
+  opacity: 1;
 }
 
 button:hover {
-  background-color: var(--button-hover-bg);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px var(--shadow-color);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px var(--shadow-color), inset 0 2px 8px rgba(255, 255, 255, 0.3);
 }
 
 button:active {
   transform: translateY(0);
   box-shadow: 0 2px 5px var(--shadow-color);
-}
-
-.calendar-options {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.radio-label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 16px;
-  color: var(--text-color);
-}
-
-.radio-label input[type="radio"] {
-  width: 20px;
-  height: 20px;
-  margin-right: 8px;
-  -webkit-appearance: radio; /* Keep native radio button appearance */
-  -moz-appearance: radio;
-  appearance: radio;
 }
 
 .date-display {
@@ -331,7 +339,7 @@ button:active {
   width: 100%;
   text-align: center;
   padding: 20px;
-  margin-top: auto; /* Push footer to the bottom */
+  margin-top: auto;
   background-color: var(--footer-bg);
   color: var(--footer-text);
   font-size: 14px;
