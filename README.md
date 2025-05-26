@@ -38,6 +38,29 @@ We welcome developers, data scientists, designers, and writers to contribute and
 
 ---
 
+
+## 🏗️ Architecture
+
+The system follows a layered and modular architecture, consisting of:
+
+### **Web Interface**
+- HTML
+- CSS
+- JavaScript
+### **FastAPI Backend**
+- FastAPI REST Backend
+
+### **Business Logic**
+- Prompt Maker
+- LLM Engine
+- Data Parser
+
+### **External AI Services**
+- Gemini / Groq / Ollama
+
+
+---
+
 ## 🌐 Use Cases
 
 * Moon visibility reporting for Islamic calendar (Hilal sighting)
