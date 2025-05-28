@@ -6,6 +6,8 @@ import ButtonGroup from './ButtonGroup';
 import ResponseMessage from './ResponseMessage';
 
 const backendURL = "https://moonai-backend.onrender.com"; // رابط الـ backend الخاص بك
+//const backendURL = "http://127.0.0.1:8000";
+
 
 function ReportForm() {
   const [date, setDate] = useState("28-05-2025");
@@ -15,10 +17,17 @@ function ReportForm() {
   const [isError, setIsError] = useState(false);
 
   function generateReport(type) {
+
+  if (!date || !month || !year) {
+    setResponseMessage("Please fill in all fields before generating the report.");
+    setIsError(true);
+    return;
+  }
+
     const formData = {
-      date,
+      date: date,   
       islamic_month: month,
-      islamic_year: year,
+      islamic_year: year.toString(),
     };
 
     let endpoint = type === "moon-parameters" 
