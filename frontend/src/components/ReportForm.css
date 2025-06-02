@@ -1,0 +1,16 @@
+.report-form {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  background-color:darkcyan;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+margin-top: 120px;
+margin-bottom: 120px;
+}
+
+.report-form h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}

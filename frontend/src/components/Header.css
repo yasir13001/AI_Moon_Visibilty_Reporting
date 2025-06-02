@@ -1,0 +1,18 @@
+.header {
+  padding: 60px 20px;
+  text-align: center;
+  background-color: #0e0e2c;
+  color: #ffffff;
+}
+
+.header-title {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.header-subtitle {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}

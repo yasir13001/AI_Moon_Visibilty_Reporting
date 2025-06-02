@@ -1,0 +1,35 @@
+.tiled-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 20px;
+background-color:#121212;
+}
+
+.tile {
+    margin-top: 150px;
+margin-bottom: 150px;
+  background-color: #484848;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+cursor: pointer;
+}
+
+.tile:hover {
+  transform: scale(1.02);
+  background-color: #585858;
+}
+
+.tile h3 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+}
+
+.tile p {
+  margin: 0;
+  color: #ccc;
+
+}
+
