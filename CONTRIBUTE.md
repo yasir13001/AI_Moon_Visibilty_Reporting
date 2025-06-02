@@ -60,6 +60,38 @@ Before running the app, make sure to install the required dependencies.
 
    This will start the server on `http://127.0.0.1:8000`, and you can interact with it via the HTML form at `http://127.0.0.1:8000/`.
 
+
+2. **Start the React frontend (if applicable)**
+
+If you want to contribute in React frontend, follow these steps to start it:
+
+1. **Navigate to the frontend directory:**
+
+   ```bash
+   cd frontend
+   ```
+
+2. **Install frontend dependencies** (only needed once or when `package.json` changes):
+
+   ```bash
+   npm install
+   ```
+
+3. **Start the React app**:
+
+   ```bash
+   npm run dev
+   ```
+
+   This will start the development server, typically at `http://localhost:5173`.
+
+---
+
+### Notes:
+
+* Ensure **Node.js** and **npm** are installed. If not, download them from [https://nodejs.org/](https://nodejs.org/).
+* If you encounter an error like `npm not recognized`, refer to the troubleshooting section or reinstall Node.js.
+
 ---
 
 ## Auto-Start Application on Boot (Windows)
@@ -117,7 +149,6 @@ The form is styled to center itself in the middle of the page for a better user 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
 
 ## Summary of Updates in `README.md`:
 
